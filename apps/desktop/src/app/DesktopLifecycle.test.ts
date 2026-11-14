@@ -264,8 +264,8 @@ describe("DesktopLifecycle", () => {
         Effect.provideService(HostProcess.Arguments, [
           "/opt/TSCI Code/t3code",
           "--no-sandbox",
-          "T3CODE://pair?token=spent",
-          "t3code://new?prompt=hello",
+          "TSCI-CODE://pair?token=spent",
+          "tsci-code://new?prompt=hello",
         ]),
       );
 

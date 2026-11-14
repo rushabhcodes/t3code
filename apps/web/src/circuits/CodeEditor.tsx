@@ -87,7 +87,7 @@ export function CodeEditor({
                 fontSize: "12px",
               },
               ".cm-scroller": {
-                fontFamily: '"SFMono-Regular", Consolas, "Liberation Mono", monospace',
+                fontFamily: '"JetBrains Mono Variable", "JetBrains Mono", Consolas, monospace',
                 lineHeight: "1.9",
               },
               ".cm-content": { padding: "22px 0 80px", caretColor: "var(--tsci-accent)" },

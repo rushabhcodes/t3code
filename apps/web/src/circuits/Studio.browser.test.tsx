@@ -1,12 +1,14 @@
 import { expect, it, vi } from "vite-plus/test";
 import { page } from "vite-plus/test/browser";
 import { EditorView } from "@codemirror/view";
+import { StrictMode } from "react";
 import { render } from "../../test/render";
 import { Studio } from "./Studio";
 import { circuitTemplates } from "./templates";
 import { compileCircuit } from "./compiler";
 import { Preview } from "./Preview";
-import "@fontsource-variable/inter";
+import "@fontsource-variable/geist";
+import "@fontsource-variable/jetbrains-mono";
 import "./studio.css";
 import "@tscircuit/pcb-viewer";
 import "@tscircuit/schematic-viewer";
@@ -58,15 +60,23 @@ it("onboards a user, blocks stale fabrication exports, and recovers the edited d
   const restoredContainer = document.createElement("div");
   restoredContainer.style.height = "100dvh";
   // Recovery is independent of the agent router and server.
-  await using recovered = await render(<Studio />, { container: restoredContainer, router: false });
+  await using recovered = await render(
+    <StrictMode>
+      <Studio />
+    </StrictMode>,
+    { container: restoredContainer, router: false },
+  );
   const recoveredEditor = recovered.getByRole("textbox", { name: "main.tsx source editor" });
   await expect.element(recoveredEditor).toBeVisible();
-  expect(EditorView.findFromDOM(recoveredEditor.element())?.state.doc.toString()).toContain(
-    'resistance="1k"',
-  );
+  expect(
+    EditorView.findFromDOM(recoveredEditor.element() as HTMLElement)?.state.doc.toString(),
+  ).toContain('resistance="1k"');
   await expect
     .element(recovered.getByRole("dialog", { name: "Welcome to TSCI Code" }))
     .not.toBeInTheDocument();
+  await expect
+    .element(recovered.getByRole("status", { name: "Circuit build status" }))
+    .toHaveTextContent("Circuit up to date");
 });
 
 it("renders the same compiled board as a schematic and an interactive 3D model", async () => {

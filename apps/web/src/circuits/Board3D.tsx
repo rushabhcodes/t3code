@@ -151,7 +151,7 @@ export function Board3D({
     const container = host.current;
     const renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    renderer.setClearColor("#eef2ed");
+    renderer.setClearColor("#f4f6f8");
     renderer.domElement.setAttribute("aria-label", "3D circuit board canvas");
     container.appendChild(renderer.domElement);
     const scene = new THREE.Scene();
@@ -168,10 +168,20 @@ export function Board3D({
     controls.minDistance = 2;
     controls.maxDistance = Math.max(board.width, board.height) * 15;
     const render = () => renderer.render(scene, camera);
+    const bounds = new THREE.Box3()
+      .setFromObject(board.group)
+      .getBoundingSphere(new THREE.Sphere());
     const fit = () => {
-      const size = Math.max(board.width, board.height, 5);
-      controls.target.set(board.x, board.y, 0);
-      camera.position.set(board.x + size * 0.8, board.y - size, size * 1.3);
+      const { width, height } = container.getBoundingClientRect();
+      camera.aspect = width / Math.max(height, 1);
+      camera.updateProjectionMatrix();
+      const verticalAngle = THREE.MathUtils.degToRad(camera.fov / 2);
+      const horizontalAngle = Math.atan(Math.tan(verticalAngle) * camera.aspect);
+      const distance = (bounds.radius * 1.15) / Math.sin(Math.min(verticalAngle, horizontalAngle));
+      controls.target.copy(bounds.center);
+      camera.position
+        .copy(bounds.center)
+        .add(new THREE.Vector3(0.8, -1, 1.3).normalize().multiplyScalar(distance));
       camera.lookAt(controls.target);
       controls.update();
       render();

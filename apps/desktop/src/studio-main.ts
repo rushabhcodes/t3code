@@ -142,7 +142,7 @@ async function start() {
       minHeight: 600,
       show: false,
       title: "TSCI Code",
-      backgroundColor: "#151917",
+      backgroundColor: "#ffffff",
       icon: NodePath.resolve(__dirname, "../../../assets/prod/black-universal-1024.png"),
       ...(NodeProcess.platform === "darwin" ? { titleBarStyle: "hiddenInset" as const } : {}),
       webPreferences: {

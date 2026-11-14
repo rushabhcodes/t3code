@@ -86,7 +86,7 @@ export function Studio() {
   return loaded ? (
     <WorkspaceEditor initial={loaded.workspace} temporary={loaded.temporary} />
   ) : (
-    <div className="tsci-app tsci-loading" data-theme="dark">
+    <div className="tsci-app tsci-loading" data-theme="light">
       <img src="/tsci-logo.svg" alt="TSCI Code" />
       <h1>{failure ? "Let’s recover your workspace." : "Opening your workspace"}</h1>
       <p>{failure ?? "Your next idea is right where you left it."}</p>
@@ -144,12 +144,12 @@ function useBuild(project: CircuitProject | null, autoRun: boolean, runRequest: 
   useEffect(() => {
     if (!projectId || !entrypoint || !files || (!autoRun && lastRunRequest.current === runRequest))
       return;
-    lastRunRequest.current = runRequest;
     const controller = new AbortController();
     currentJob.current = controller;
     const timer = window.setTimeout(
       () => {
         if (controller.signal.aborted) return;
+        lastRunRequest.current = runRequest;
         const started = performance.now();
         setBuild((previous) => ({
           ...previous,
@@ -221,7 +221,7 @@ function WorkspaceEditor({ initial, temporary }: { initial: Workspace; temporary
   const [workspace, setWorkspace] = useState(initial);
   const [modal, setModal] = useState<Modal>(initial.projects.length === 0 ? "tour" : null);
   const [theme, setTheme] = useState<"dark" | "light">(() =>
-    readPreference("theme", "dark") === "light" ? "light" : "dark",
+    readPreference("theme", "light") === "dark" ? "dark" : "light",
   );
   const [autoRun, setAutoRun] = useState(() => readPreference("auto-run", "true") !== "false");
   const [sidebar, setSidebar] = useState<"files" | "library">("files");
@@ -376,9 +376,8 @@ function WorkspaceEditor({ initial, temporary }: { initial: Workspace; temporary
       }
     } catch (error) {
       notify(errorText(error), true);
-    } finally {
-      setBusy(false);
     }
+    setBusy(false);
   }
 
   async function exportDesign(kind: Parameters<typeof exportCircuit>[0]) {
@@ -393,9 +392,8 @@ function WorkspaceEditor({ initial, temporary }: { initial: Workspace; temporary
       if (saved) notify(`Exported ${saved.name}`);
     } catch (error) {
       notify(errorText(error), true);
-    } finally {
-      setBusy(false);
     }
+    setBusy(false);
   }
 
   const keydown = useEffectEvent((event: KeyboardEvent) => {

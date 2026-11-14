@@ -188,7 +188,7 @@ describe("DesktopLinuxUrlHandler", () => {
     const entry = DesktopLinuxUrlHandler.renderUrlHandlerDesktopEntry({
       displayName: "TSCI Code (Nightly)",
       execTarget: '/home/al ice/Apps/T3 "100%" $HOME\\x.AppImage',
-      scheme: "t3code",
+      scheme: "tsci-code",
       iconPath: "/home/al ice/icons/T3\\x.png",
     });
 
@@ -200,28 +200,36 @@ describe("DesktopLinuxUrlHandler", () => {
     );
     assert.include(entry, "NoDisplay=true");
     assert.notInclude(entry, "StartupWMClass=");
-    assert.include(entry, "MimeType=x-scheme-handler/t3code;");
+    assert.include(entry, "MimeType=x-scheme-handler/tsci-code;");
     assert.include(entry, "Icon=/home/al ice/icons/T3\\\\x.png");
   });
 
   it.each([
-    { from: "T3-Code-0.1.8-x86_64.AppImage", to: "T3-Code-x86_64.AppImage", restored: true },
+    { from: "TSCI-Code-0.1.8-x86_64.AppImage", to: "TSCI-Code-x86_64.AppImage", restored: true },
     {
-      from: "T3-Code-0.1.9-nightly.20261110.4449-arm64.AppImage",
-      to: "T3-Code-Nightly-arm64.AppImage",
+      from: "TSCI-Code-0.1.9-nightly.20261110.4449-arm64.AppImage",
+      to: "TSCI-Code-Nightly-arm64.AppImage",
       restored: true,
     },
-    { from: "T3-Code-0.1.8-x86_64.AppImage", to: "T3-Code-0.1.9-x86_64.AppImage", restored: false },
-    { from: "t3code.AppImage", to: "T3-Code-x86_64.AppImage", restored: false },
-    { from: "T3-Code-x86_64.AppImage", to: "T3-Code-x86_64.AppImage", restored: false },
-    { from: "../T3-Code-0.1.8-x86_64.AppImage", to: "T3-Code-x86_64.AppImage", restored: false },
+    {
+      from: "TSCI-Code-0.1.8-x86_64.AppImage",
+      to: "TSCI-Code-0.1.9-x86_64.AppImage",
+      restored: false,
+    },
+    { from: "t3code.AppImage", to: "TSCI-Code-x86_64.AppImage", restored: false },
+    { from: "TSCI-Code-x86_64.AppImage", to: "TSCI-Code-x86_64.AppImage", restored: false },
+    {
+      from: "../TSCI-Code-0.1.8-x86_64.AppImage",
+      to: "TSCI-Code-x86_64.AppImage",
+      restored: false,
+    },
   ])("finds the launch path an update from $from to $to removed", ({ from, to, restored }) => {
     for (const dir of ["/home/alice/Applications", '/home/al ice/My "100%" $Apps\\x']) {
       const previous = dir + "/" + from;
       const previousEntry = DesktopLinuxUrlHandler.renderUrlHandlerDesktopEntry({
         displayName: "T3 Code (Beta)",
         execTarget: previous,
-        scheme: "t3code",
+        scheme: "tsci-code",
       });
       assert.equal(
         DesktopLinuxUrlHandler.replacedVersionedAppImagePath({
@@ -251,7 +259,7 @@ describe("DesktopLinuxUrlHandler", () => {
           recorded.files[0]?.content,
           "Exec=/home/alice/Applications/TSCI-Code.AppImage %U",
         );
-        assert.include(recorded.files[0]?.content, "MimeType=x-scheme-handler/t3code;");
+        assert.include(recorded.files[0]?.content, "MimeType=x-scheme-handler/tsci-code;");
         assert.deepEqual(recorded.commands, [
           {
             command: "update-desktop-database",
@@ -259,7 +267,7 @@ describe("DesktopLinuxUrlHandler", () => {
           },
           {
             command: "xdg-mime",
-            args: ["default", "com.tsci.Code.desktop", "x-scheme-handler/t3code"],
+            args: ["default", "com.tsci.Code.desktop", "x-scheme-handler/tsci-code"],
           },
         ]);
       });
@@ -277,7 +285,7 @@ describe("DesktopLinuxUrlHandler", () => {
         DesktopLinuxUrlHandler.renderUrlHandlerDesktopEntry({
           displayName: "TSCI Code (Alpha)",
           execTarget: process.execPath,
-          scheme: "t3code",
+          scheme: "tsci-code",
           iconPath: "/home/alice/.local/share/icons/com.tsci.Code.desktop.png",
         }),
       );
@@ -304,7 +312,7 @@ describe("DesktopLinuxUrlHandler", () => {
         existingEntry: DesktopLinuxUrlHandler.renderUrlHandlerDesktopEntry({
           displayName: "TSCI Code (Alpha)",
           execTarget: "/home/alice/Applications/TSCI-Code.AppImage",
-          scheme: "t3code",
+          scheme: "tsci-code",
           iconPath: "/home/alice/.local/share/icons/com.tsci.Code.desktop.png",
         }),
       });
@@ -318,7 +326,7 @@ describe("DesktopLinuxUrlHandler", () => {
         },
         {
           command: "xdg-mime",
-          args: ["default", "com.tsci.Code.desktop", "x-scheme-handler/t3code"],
+          args: ["default", "com.tsci.Code.desktop", "x-scheme-handler/tsci-code"],
         },
       ]);
     });
@@ -333,7 +341,7 @@ describe("DesktopLinuxUrlHandler", () => {
         existingEntry: DesktopLinuxUrlHandler.renderUrlHandlerDesktopEntry({
           displayName: "TSCI Code (Alpha)",
           execTarget: "/home/alice/Applications/TSCI-Code.AppImage",
-          scheme: "t3code",
+          scheme: "tsci-code",
           iconPath,
         }),
       });

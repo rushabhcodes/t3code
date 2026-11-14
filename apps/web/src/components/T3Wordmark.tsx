@@ -7,7 +7,7 @@ export function T3Wordmark(props: SVGProps<SVGSVGElement>) {
         x="0"
         y="27"
         fill="currentColor"
-        fontFamily="Inter, sans-serif"
+        fontFamily="Geist, sans-serif"
         fontWeight="600"
         fontSize="28"
         letterSpacing="-1"

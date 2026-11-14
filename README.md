@@ -1,108 +1,168 @@
-<p align="center">
-  <a href="https://t3.codes">
-    <img src="./assets/prod/t3-black-web-icon-192x192.png" width="80" height="80" alt="T3 Code logo" />
-  </a>
-</p>
+<p align="center"><img src="assets/tsci/logo.svg" width="84" height="84" alt="TSCI Code" /></p>
+<h1 align="center">TSCI Code</h1>
+<p align="center">The circuit is the code.</p>
 
-<h1 align="center">T3 Code</h1>
+TSCI Code is a local desktop workbench for designing electronics with **TypeScript and tscircuit**. Write a circuit, inspect its schematic and PCB, see the board in 3D, and export the files for your next step. It is built on the MIT-licensed [T3 Code](https://github.com/pingdotgg/t3code) desktop and agent platform.
 
-<p align="center">The open-source control plane for coding agents.</p>
+The circuit editor needs **no account, API key, or installed coding agent**. The inherited agent workspace is available separately when you want help working on a source project.
 
-<p align="center">
-  <a href="https://t3.codes/download"><strong>Download</strong></a> ·
-  <a href="https://apps.apple.com/us/app/t3-code-remote-claude-more/id6787819824">iOS</a> ·
-  <a href="https://play.google.com/store/apps/details?id=com.t3tools.t3code">Android</a> ·
-  <a href="https://app.t3.codes">Web</a> ·
-  <a href="./docs/README.md">Docs</a> ·
-  <a href="https://discord.gg/jn4EGJjrvv">Discord</a>
-</p>
+## Start from source
 
-<p align="center">
-  <a href="https://t3.codes">
-    <img src="./.github/readme/hero.webp" width="100%" alt="T3 Code on desktop with a finished Claude thread, next to the phone app asking to approve a command from Codex" />
-  </a>
-</p>
+Use **Node.js 26.12.1** and **pnpm 12.14.0**, matching the versions pinned by this repository. Git and a desktop environment are needed for desktop development.
 
-T3 Code runs the coding agents on your machine and gives them one fast interface. Start a thread at your desk, then approve the next step from your phone.
-
-It works with Claude Code, Codex, Cursor, OpenCode, Grok Build, Antigravity, Kiro, Pi, Muse Code, fx, and any [ACP](./docs/user/providers-acp.md) agent. If an agent is set up on your computer, T3 Code can control it.
-
-## What you get
-
-- **Your subscriptions.** T3 Code does not resell tokens. It drives the agents you are already signed in to.
-- **Every agent in one place.** Change models in the middle of a thread. Let Claude hand a task to Codex.
-- **Desktop, web, and phone.** One server, and every client shows the same threads. There are apps for iOS and Android.
-- **Remote ready.** Run agents on any machine. Connect over your local network, Tailscale, or [T3 Connect](./docs/user/remote-access.md).
-- **Git built in.** Each thread can work in its own worktree. Review the diff, then commit, push, and open a pull request with one button.
-- **Fast.** Performance is a feature here. We measure it, and we treat a dropped frame as a bug.
-- **Open.** MIT licensed. If you don't like something, fork it.
-
-## Install
-
-### Desktop app
-
-[Download T3 Code](https://t3.codes/download) for macOS, Windows, or Linux. You can also use a package manager:
-
-| Platform       | Command                                                              |
-| -------------- | -------------------------------------------------------------------- |
-| macOS          | `brew install --cask t3-code`                                        |
-| Windows        | `winget install T3Tools.T3Code` or `scoop install extras/t3code`     |
-| Arch Linux     | `yay -S t3code-bin`                                                  |
-| Nix            | `nix profile add github:NixOS/nixpkgs/nixos-unstable#t3code`         |
-| Debian, Ubuntu | `.deb` from [Releases](https://github.com/pingdotgg/t3code/releases) |
-
-### Command line
-
-This installs the `t3` command. Run `t3` to start the server and open the web app.
-
-```bash
-curl -fsSL https://t3.codes/install.sh | sh
+```sh
+git clone https://github.com/rushabhcodes/t3code.git tsci-code
+cd tsci-code
+npm install -g pnpm@12.14.0
+pnpm install
 ```
 
-On Windows, in PowerShell:
+Run the circuit editor in your browser:
 
-```powershell
-irm https://t3.codes/install.ps1 | iex
+```sh
+pnpm dev:studio
 ```
 
-To try it once without an install, run `npx t3@latest`.
+Open the local URL printed by Vite. This starts the editor without the optional agent server. Drafts belong to that browser origin; keep the same development port to recover them.
 
-### Phone
+Run the Electron desktop app:
 
-Get the app from the [App Store](https://apps.apple.com/us/app/t3-code-remote-claude-more/id6787819824) or [Google Play](https://play.google.com/store/apps/details?id=com.t3tools.t3code). Then follow [remote access](./docs/user/remote-access.md) to connect it to your computer.
+```sh
+pnpm dev                 # same as pnpm dev:desktop
+```
 
-### Sign in to an agent
+This builds the compact Electron shell, starts its renderer on a free loopback port, and opens the workbench. The compiler, PCB router, schematic viewer, and 3D board renderer are bundled locally. No Rust toolchain or agent server is needed for this entry point. Electron needs the usual Linux graphical libraries; install its runtime with `pnpm --filter @t3tools/desktop ensure:electron` if the download was skipped.
 
-T3 Code needs one agent that is installed and signed in. For example, install [Claude Code](https://claude.com/product/claude-code) and run `claude auth login`, or install [Codex CLI](https://developers.openai.com/codex/cli) and run `codex login`.
+The development renderer uses a stable app origin, so native draft recovery survives changing development ports. Stopping the launcher also stops its child processes.
 
-[Provider setup](./docs/user/install.md#providers) has the steps for each agent. [Install T3 Code](./docs/user/install.md) covers nightly builds, AppImage, WSL, and NixOS.
+There are no published TSCI Code installers bundled with this source checkout. Build your own package using the commands below.
 
-## "Wait, what are you selling me?"
+## Your first circuit
 
-Nothing. We built T3 Code because we wanted the best possible development experience with agents. We were inspired by existing solutions like the Codex desktop app, Conductor, Claude Desktop and Cursor Glass, but none met our bar.
+1. **Meet the workbench.** The welcome flow explains source, previews, and exports. Choose **Hello, LED**, **Voltage divider**, **RC low-pass filter**, or a blank board, then name the project.
+2. **Make a change.** Open `main.tsx`. Try changing the LED circuit's resistance from `330` to `1k`. Auto-run rebuilds after you stop typing; turn it off to build manually.
+3. **Inspect the design.** Switch between **PCB**, **Schematic**, **3D**, and **BOM**. Scroll to zoom and drag to pan. Use Code, Split, or Preview layout to give a view more space.
+4. **Resolve problems.** Open the Problems panel for compiler and circuit diagnostics. A failed build preserves the last successful preview and marks it as needing a rebuild. Fabrication exports stay disabled until the current source builds without errors.
+5. **Keep a portable copy.** Save a `.tsci.json` project. It contains every source file and the entry point. Reopen it on another device, or keep it in version control.
+6. **Export.** Download a source project, Circuit JSON, a BOM CSV, schematic SVG, or Gerber ZIP. Inspect the exported board and your manufacturer's rules before ordering.
 
-We wanted something performant, remote-ready, and truly open. If we ever go the wrong direction, we want you to have everything you need to fork and build the tool that you want.
+Replay onboarding from **Guide → Replay the welcome tour**. The guide also explains component coordinates and trace selectors.
 
-## Documentation
+## Write circuits with TSX
 
-- [Install and first run](./docs/user/install.md)
-- [Remote access from a phone or another machine](./docs/user/remote-access.md)
-- [Permission modes](./docs/user/permission-modes.md)
-- [Source control](./docs/user/source-control.md)
-- [Connect outside agents over MCP](./docs/user/outside-agents.md)
-- [FAQ](./docs/user/faq.md)
+A circuit entry point exports a component containing a board. Components need unique names; footprints and dimensions use tscircuit's units and conventions.
 
-[All docs](./docs/README.md) has the full list.
+```tsx
+export default () => (
+  <board width="30mm" height="20mm" autorouter="auto-local">
+    <pinheader name="J1" pinCount={2} footprint="pinrow2" pcbX={-10} schX={-5} />
+    <resistor name="R1" resistance="330" footprint="0603" pcbX={-4} schX={-2} />
+    <led name="D1" color="green" footprint="0603" pcbX={4} schX={2} />
+    <trace from="net.VCC" to=".R1 > .pin1" />
+    <trace from=".R1 > .pin2" to=".D1 > .pin1" />
+    <trace from=".D1 > .pin2" to="net.GND" />
+    <trace from=".J1 > .pin1" to="net.VCC" />
+    <trace from=".J1 > .pin2" to="net.GND" />
+  </board>
+);
+```
 
-## Contributing
+Use `pcbX`/`pcbY` for board positions and `schX`/`schY` for schematic positions. The component library inserts resistor, capacitor, and LED snippets with unique references. Place inserted components and add their connections before manufacturing.
 
-We have limited review capacity. Small, focused fixes are the most likely to be merged. Features need an approved discussion first.
+Create more files with the explorer's **New source file** action. Relative imports resolve inside the project:
 
-- Read [CONTRIBUTING.md](./CONTRIBUTING.md) before you report a bug or open a pull request.
-- Put feature requests in [Ideas](https://github.com/pingdotgg/t3code/discussions/categories/ideas).
-- Build from source with the [development runbook](./docs/operations/development.md#first-checkout). The [architecture overview](./docs/internals/overview.md) explains how it works.
-- Get help in [Discord](https://discord.gg/jn4EGJjrvv).
+```tsx
+import { Indicator } from "./components/Indicator";
+```
 
-## License
+The active file can differ from the entry point. Select **Use as entry point** on another TSX/JSX file to build it instead. The editor supports syntax highlighting, search, undo/redo, bracket matching, tab indentation, and circuit-aware completion. See the [tscircuit documentation](https://docs.tscircuit.com) for the full component API.
 
-[MIT](./LICENSE)
+## Files, drafts, and recovery
+
+- **Projects:** up to 20 local projects, each with up to 100 source files and a 2 MB portable project limit. Import `.tsci.json`, `.tsx`, or `.jsx` with Open.
+- **Local recovery:** changes are saved to IndexedDB after a short pause. “Draft saved” means the device transaction completed; it does not mean a file was written to disk. The editor warns before leaving while a draft is uncommitted or storage has failed.
+- **Desktop Save:** native dialogs choose the destination. Later saves update that chosen file with an atomic replacement. Opening a single TSX/JSX file and saving it preserves the source format. Use Save As to create a complete project instead.
+- **Browser Save:** downloads a portable project. Browser drafts stay in that browser profile and origin.
+- **Recovery failures:** retry without changing the saved workspace, or enter a clearly marked temporary workspace and save files manually. A storage failure never becomes a “saved” status.
+- **Backups:** exported files remain on disk when a local draft is removed. Clearing app/browser data removes local drafts. Save project files for backups and moving between devices.
+
+The compiler is bundled locally and runs in a disposable web worker. Editing cancels obsolete builds, and a 30-second ceiling stops stalled code or routing. Built-in starters compile without a hosted rendering service. Automatic supplier lookups are disabled for local editing. Add part numbers explicitly when preparing a BOM. External package imports and custom 3D assets can require internet access. Project source is executable TypeScript; open source from people you trust.
+
+TSCI Code uses its own desktop identity (`com.tsci.code`), protocol (`tsci-code://`), and Chromium profiles (`tsci-code-studio` and `tsci-code-studio-dev` inside your OS app-data directory). It can coexist with T3 Code. Set `TSCI_USER_DATA_DIR` to an isolated directory for testing. Internal `@t3tools/*` package names and `T3CODE_*` variables remain for compatibility with the optional agent platform.
+
+## Export formats
+
+| Format          | Use                                                                                          |
+| --------------- | -------------------------------------------------------------------------------------------- |
+| `.tsci.json`    | Reopen the full editable project in TSCI Code                                                |
+| Source ZIP      | TSX/source files, `tscircuit.config.json`, and a package manifest with `dev`/`build` scripts |
+| `.circuit.json` | Compiled tscircuit design for other tools                                                    |
+| BOM CSV         | Component references, types, values, and available manufacturer part numbers                 |
+| Schematic SVG   | A vector drawing for documentation                                                           |
+| Gerber ZIP      | Copper, solder mask, paste, silkscreen, outline, and Excellon drill files                    |
+
+Source/project exports work before a build. Compiled exports require a current result, and Gerbers additionally require no build errors. Circuit checks do not replace electrical review, a manufacturer's DRC, or checking footprints and part availability.
+
+## Keyboard workflow
+
+| Action          | macOS      | Windows / Linux |
+| --------------- | ---------- | --------------- |
+| Command palette | ⌘ K        | Ctrl K          |
+| Save            | ⌘ S        | Ctrl S          |
+| Save As         | ⌘ Shift S  | Ctrl Shift S    |
+| Open            | ⌘ O        | Ctrl O          |
+| Run circuit     | ⌘ Enter    | Ctrl Enter      |
+| Autocomplete    | Ctrl Space | Ctrl Space      |
+
+The command palette includes project switching, new/open/save, exports, settings, and the guide. Settings controls dark/light appearance and auto-run.
+
+## Work with an agent
+
+The inherited T3 agent platform remains available as a separate workflow:
+
+```sh
+pnpm dev:agents                 # web editor plus local agent server
+pnpm dev:desktop:agents         # inherited desktop with agent server
+```
+
+In the full web application, choose **Coding agents** in the circuit editor's left rail. Export a source ZIP, extract it into a folder, and add that folder to the agent workspace. Connect an installed, authenticated provider such as Codex or Claude Code, then reopen the updated source in the circuit editor.
+
+Agent work uses your provider account and subscriptions. Circuit drafts and agent folders do not synchronize automatically. The wordmark in the agent workspace returns to the circuit editor. The compact desktop build contains the circuit workflow; it does not start the agent platform. The inherited desktop workflow needs the native build prerequisites in [the development runbook](docs/operations/development.md).
+
+## Build desktop packages
+
+```sh
+pnpm build:desktop
+```
+
+Package on the corresponding host OS:
+
+```sh
+pnpm dist:desktop:linux       # Linux AppImage
+pnpm dist:desktop:dmg         # macOS DMG
+pnpm dist:desktop:win:x64     # Windows x64 installer
+```
+
+Artifacts are written under `release/`. `pnpm start:desktop` opens an existing build. Windows and macOS signing/notarization require your own credentials. This compact editor has no automatic update feed; distribute new installers through your own releases.
+
+Production builds generate third-party notices and fail if a dependency lacks a distributable notice. Compatible viewer releases are pinned, and verified license declarations/notices are recorded in `third-party-licenses.config.json`. Keep this check enabled when updating dependencies.
+
+Regenerate the web and desktop icons from `assets/tsci/logo.svg` with `pnpm icons:export`; verify them with `pnpm icons:check`.
+
+## Development checks
+
+```sh
+pnpm --filter @t3tools/web typecheck:studio
+pnpm exec vp test run apps/web/src/circuits/project.test.ts
+pnpm --filter @t3tools/web exec vp test run --project browser src/circuits/compiler.browser.test.ts
+pnpm --filter @t3tools/desktop exec vp test run src/circuits/CircuitFiles.test.ts src/electron/ElectronProtocol.test.ts
+pnpm check:changed
+```
+
+For an existing Chromium installation in CI, set `TSCI_CHROMIUM_PATH=/path/to/chromium` for browser tests. Otherwise use Playwright's installed Chromium. The worker tests compile every starter and exercise fabrication exports, invalid TSX, and cancellation. Native file tests cover destination grants, cancellation, atomic writes, and binary exports.
+
+## License and credits
+
+[MIT](LICENSE). The original T3 Code copyright and license are retained. TSCI Code is a derivative project, not an official T3 Code release. Circuit compilation and viewers come from the [tscircuit ecosystem](https://github.com/tscircuit); the editor uses CodeMirror. Third-party notices remain in `third-party-licenses/`. The 3D pane uses Three.js to render the board outline, drilled holes, pads, traces, and generic component bodies directly from Circuit JSON. It redraws on camera input, resize, and circuit changes. Detailed supplier CAD models are not included.
+
+The product is named TSCI Code. The GitHub repository is still `rushabhcodes/t3code`; the remote repository slug has not been renamed.

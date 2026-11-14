@@ -88,6 +88,8 @@
         "src/compileCache.ts!",
         "src/serverCompileCache.ts!",
         "src/main.ts!",
+        "src/studio-main.ts!",
+        "src/studio-preload.ts!",
         "src/preload.ts!",
         "src/preview-pick-preload.ts!",
         "src/preview-pip-preload.ts!",
@@ -101,7 +103,7 @@
     "apps/web": {
       // Worktree setup (scripts/setup-worktree.ts) runs this directly, and evidence
       // fixtures run under node.
-      "entry": ["scripts/warm-dep-cache.ts", "test/fixtures/**/*.mjs"],
+      "entry": ["vite.studio.config.ts", "scripts/warm-dep-cache.ts", "test/fixtures/**/*.mjs"],
       // UI component modules are copied and adapted as cohesive sets. Keep their
       // named subcomponents even before they have callers; the file audit still
       // reports an entire component module when nothing imports it.

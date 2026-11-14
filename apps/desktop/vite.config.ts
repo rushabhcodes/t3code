@@ -64,102 +64,135 @@ export default defineConfig({
       },
     },
   },
-  pack: [
-    {
-      format: "cjs",
-      outDir: "dist-electron",
-      dts: false,
-      sourcemap: true,
-      outExtensions: () => ({ js: ".cjs" }),
-      define: publicConfigDefine,
-      outputOptions: { codeSplitting: false },
-      entry: ["src/main.ts"],
-      clean: true,
-      deps: {
-        alwaysBundle: (id) => !id.startsWith("node:") && !isMainProcessExternal(id),
-        neverBundle: isMainProcessExternal,
-        onlyBundle: false,
-      },
-      ...(shouldLaunchElectronAfterPack ? { onSuccess: devElectronCommand } : {}),
-    },
-    {
-      format: "cjs",
-      outDir: "dist-electron",
-      dts: false,
-      sourcemap: true,
-      outExtensions: () => ({ js: ".cjs" }),
-      define: publicConfigDefine,
-      entry: [
-        "src/electron/WindowsForegroundFocusWorker.ts",
-        "src/snapShot/GlobalShiftShortcutWorker.ts",
-        "src/snapShot/RegionSnapShotWorker.ts",
-        "src/snapShot/SnapShotAccessibilityWorker.ts",
-      ],
-      clean: false,
-      deps: {
-        alwaysBundle: (id) => !id.startsWith("node:") && !isMainProcessExternal(id),
-        neverBundle: isMainProcessExternal,
-        onlyBundle: false,
-      },
-    },
-    {
-      // boot.cjs requires the other two at runtime, so all three stay separate files.
-      format: "cjs",
-      outDir: "dist-electron",
-      dts: false,
-      sourcemap: true,
-      outExtensions: () => ({ js: ".cjs" }),
-      entry: ["src/boot.ts", "src/compileCache.ts", "src/serverCompileCache.ts"],
-      clean: false,
-      deps: {
-        neverBundle: (id) => id === "./main.cjs" || id === "./compileCache.cjs",
-      },
-    },
-    {
-      format: "cjs",
-      outDir: "dist-electron",
-      dts: false,
-      sourcemap: true,
-      outExtensions: () => ({ js: ".cjs" }),
-      define: publicConfigDefine,
-      entry: ["src/preload.ts"],
-      deps: {
-        // Sandboxed preloads cannot resolve imports inside ASAR; bundle Clerk's bridge.
-        alwaysBundle: (id) => id === "@clerk/electron" || id.startsWith("@clerk/electron/"),
-      },
-    },
-    {
-      format: "cjs",
-      outDir: "dist-electron",
-      dts: false,
-      sourcemap: true,
-      outExtensions: () => ({ js: ".cjs" }),
-      entry: ["src/preview-pick-preload.ts"],
-      deps: {
-        alwaysBundle: (id) =>
-          id === "react-grab" ||
-          id.startsWith("react-grab/") ||
-          id === "@t3tools/shared/keybindingMatching",
-      },
-    },
-    {
-      format: "cjs",
-      outDir: "dist-electron",
-      dts: false,
-      sourcemap: true,
-      outExtensions: () => ({ js: ".cjs" }),
-      entry: ["src/preview-pip-preload.ts"],
-    },
-    {
-      // Sandboxed preloads must be self-contained, without shared runtime chunks.
-      format: "cjs",
-      outDir: "dist-electron",
-      dts: false,
-      sourcemap: true,
-      outExtensions: () => ({ js: ".cjs" }),
-      entry: ["src/mac-permission-preload.ts"],
-    },
-  ],
+  pack:
+    process.env.TSCI_DESKTOP_STUDIO === "1"
+      ? [
+          {
+            entry: { main: "src/studio-main.ts" },
+            outDir: "dist-studio",
+            format: "cjs",
+            dts: false,
+            sourcemap: true,
+            outputOptions: { codeSplitting: false },
+            outExtensions: () => ({ js: ".cjs" }),
+            deps: {
+              alwaysBundle: (id) => id !== "electron" && !id.startsWith("node:"),
+              neverBundle: (id) => id === "electron" || id.startsWith("node:"),
+              onlyBundle: false,
+            },
+          },
+          {
+            entry: { preload: "src/studio-preload.ts" },
+            outDir: "dist-studio",
+            format: "cjs",
+            dts: false,
+            clean: false,
+            sourcemap: true,
+            outputOptions: { codeSplitting: false },
+            outExtensions: () => ({ js: ".cjs" }),
+            deps: {
+              alwaysBundle: (id) => id !== "electron" && !id.startsWith("node:"),
+              neverBundle: (id) => id === "electron" || id.startsWith("node:"),
+              onlyBundle: false,
+            },
+          },
+        ]
+      : [
+          {
+            format: "cjs",
+            outDir: "dist-electron",
+            dts: false,
+            sourcemap: true,
+            outExtensions: () => ({ js: ".cjs" }),
+            define: publicConfigDefine,
+            outputOptions: { codeSplitting: false },
+            entry: ["src/main.ts"],
+            clean: true,
+            deps: {
+              alwaysBundle: (id) => !id.startsWith("node:") && !isMainProcessExternal(id),
+              neverBundle: isMainProcessExternal,
+              onlyBundle: false,
+            },
+            ...(shouldLaunchElectronAfterPack ? { onSuccess: devElectronCommand } : {}),
+          },
+          {
+            format: "cjs",
+            outDir: "dist-electron",
+            dts: false,
+            sourcemap: true,
+            outExtensions: () => ({ js: ".cjs" }),
+            define: publicConfigDefine,
+            entry: [
+              "src/electron/WindowsForegroundFocusWorker.ts",
+              "src/snapShot/GlobalShiftShortcutWorker.ts",
+              "src/snapShot/RegionSnapShotWorker.ts",
+              "src/snapShot/SnapShotAccessibilityWorker.ts",
+            ],
+            clean: false,
+            deps: {
+              alwaysBundle: (id) => !id.startsWith("node:") && !isMainProcessExternal(id),
+              neverBundle: isMainProcessExternal,
+              onlyBundle: false,
+            },
+          },
+          {
+            // boot.cjs requires the other two at runtime, so all three stay separate files.
+            format: "cjs",
+            outDir: "dist-electron",
+            dts: false,
+            sourcemap: true,
+            outExtensions: () => ({ js: ".cjs" }),
+            entry: ["src/boot.ts", "src/compileCache.ts", "src/serverCompileCache.ts"],
+            clean: false,
+            deps: {
+              neverBundle: (id) => id === "./main.cjs" || id === "./compileCache.cjs",
+            },
+          },
+          {
+            format: "cjs",
+            outDir: "dist-electron",
+            dts: false,
+            sourcemap: true,
+            outExtensions: () => ({ js: ".cjs" }),
+            define: publicConfigDefine,
+            entry: ["src/preload.ts"],
+            deps: {
+              // Sandboxed preloads cannot resolve imports inside ASAR; bundle Clerk's bridge.
+              alwaysBundle: (id) => id === "@clerk/electron" || id.startsWith("@clerk/electron/"),
+            },
+          },
+          {
+            format: "cjs",
+            outDir: "dist-electron",
+            dts: false,
+            sourcemap: true,
+            outExtensions: () => ({ js: ".cjs" }),
+            entry: ["src/preview-pick-preload.ts"],
+            deps: {
+              alwaysBundle: (id) =>
+                id === "react-grab" ||
+                id.startsWith("react-grab/") ||
+                id === "@t3tools/shared/keybindingMatching",
+            },
+          },
+          {
+            format: "cjs",
+            outDir: "dist-electron",
+            dts: false,
+            sourcemap: true,
+            outExtensions: () => ({ js: ".cjs" }),
+            entry: ["src/preview-pip-preload.ts"],
+          },
+          {
+            // Sandboxed preloads must be self-contained, without shared runtime chunks.
+            format: "cjs",
+            outDir: "dist-electron",
+            dts: false,
+            sourcemap: true,
+            outExtensions: () => ({ js: ".cjs" }),
+            entry: ["src/mac-permission-preload.ts"],
+          },
+        ],
   test: {
     // The Windows lane runs workspace suites concurrently; filesystem-heavy
     // desktop integration tests can exceed Vitest's 5 second default there.

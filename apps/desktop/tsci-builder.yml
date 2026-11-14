@@ -1,0 +1,41 @@
+appId: com.tsci.code
+productName: TSCI Code
+electronVersion: 44.10.1
+artifactName: TSCI-Code-${version}-${arch}.${ext}
+directories:
+  output: release
+extraMetadata:
+  name: tsci-code
+  desktopName: com.tsci.code.desktop
+  version: 0.1.9
+  main: apps/desktop/dist-studio/main.cjs
+  description: A TypeScript circuit editor powered by tscircuit
+  author: TSCI Code contributors
+  license: MIT
+files:
+  - apps/desktop/dist-studio/**
+  - apps/web/dist-studio/**
+  - assets/prod/black-universal-1024.png
+  - LICENSE
+  - README.md
+  - "!**/*.map"
+asar: true
+npmRebuild: false
+publish: null
+linux:
+  syncDesktopName: true
+  target: AppImage
+  category: Development
+  executableName: tsci-code
+  icon: assets/prod/black-universal-1024.png
+mac:
+  target: dmg
+  category: public.app-category.developer-tools
+  icon: assets/prod/black-macos-1024.png
+win:
+  target: nsis
+  icon: assets/prod/t3-black-windows.ico
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true

@@ -33,18 +33,22 @@ describe("ElectronProtocol", () => {
       const directory = yield* fileSystem.makeTempDirectoryScoped();
       yield* fileSystem.writeFileString(`${directory}/index.html`, "<html>app</html>");
       yield* fileSystem.writeFileString(`${directory}/app.js`, "export default 1;");
+      yield* fileSystem.writeFileString(
+        `${directory}/entrypoint-test.js`,
+        "self.onmessage = () => {};",
+      );
       let handler: ((request: Request) => Promise<Response>) | undefined;
       handleMock.mockImplementation((_scheme, nextHandler) => {
         handler = nextHandler;
       });
       const protocol = yield* ElectronProtocol.ElectronProtocol;
       yield* protocol.registerDesktopProtocol({
-        scheme: "t3code",
+        scheme: "tsci-code",
         assetDirectory: directory,
         clerkFrontendApiHostname: undefined,
       });
       const request = (pathname: string, init?: RequestInit) =>
-        Effect.promise(() => handler!(new Request(`t3code://app${pathname}`, init)));
+        Effect.promise(() => handler!(new Request(`tsci-code://app${pathname}`, init)));
 
       const page = yield* request("/settings/connections");
       assert.equal(yield* Effect.promise(() => page.text()), "<html>app</html>");
@@ -57,6 +61,14 @@ describe("ElectronProtocol", () => {
       const script = yield* request("/app.js?v=1");
       assert.equal(yield* Effect.promise(() => script.text()), "export default 1;");
       assert.include(script.headers.get("content-type") ?? "", "javascript");
+      const compiler = yield* request("/entrypoint-test.js?tsci-compiler=1");
+      assert.include(compiler.headers.get("content-security-policy") ?? "", "'unsafe-eval'");
+      assert.notInclude(page.headers.get("content-security-policy") ?? "", "'unsafe-eval'");
+      const regularScript = yield* request("/entrypoint-test.js");
+      assert.notInclude(
+        regularScript.headers.get("content-security-policy") ?? "",
+        "'unsafe-eval'",
+      );
 
       assert.equal((yield* request("/missing.js")).status, 404);
       assert.equal((yield* request("/%2e%2e%2fsecret.txt")).status, 404);
@@ -78,7 +90,7 @@ describe("ElectronProtocol", () => {
         Effect.gen(function* () {
           const protocol = yield* ElectronProtocol.ElectronProtocol;
           yield* protocol.registerDesktopProtocol({
-            scheme: "t3code-dev",
+            scheme: "tsci-code-dev",
             targetOrigin: new URL("http://127.0.0.1:3773/"),
             clerkFrontendApiHostname: "clerk.t3.codes",
           });
@@ -86,11 +98,11 @@ describe("ElectronProtocol", () => {
 
           const response = yield* Effect.promise(() =>
             handler!(
-              new Request("t3code-dev://app/api/health?verbose=1", {
+              new Request("tsci-code-dev://app/api/health?verbose=1", {
                 headers: {
                   accept: "application/json",
-                  origin: "t3code-dev://app",
-                  referer: "t3code-dev://app/",
+                  origin: "tsci-code-dev://app",
+                  referer: "tsci-code-dev://app/",
                   "sec-fetch-site": "same-origin",
                 },
               }),
@@ -107,18 +119,18 @@ describe("ElectronProtocol", () => {
           );
           assert.include(
             response.headers.get("content-security-policy") ?? "",
-            "img-src 'self' t3code-dev: blob: data: http: https:",
+            "img-src 'self' tsci-code-dev: blob: data: http: https:",
           );
           assert.include(
             response.headers.get("content-security-policy") ?? "",
-            "font-src 'self' t3code-dev: data:",
+            "font-src 'self' tsci-code-dev: data:",
           );
         }),
       );
 
       assert.deepEqual(
         handleMock.mock.calls.map((call) => call[0]),
-        ["t3code-dev"],
+        ["tsci-code-dev"],
       );
       assert.equal(netFetchMock.mock.calls[0]?.[0], "http://127.0.0.1:3773/api/health?verbose=1");
       const forwardedHeaders = new Headers(netFetchMock.mock.calls[0]?.[1]?.headers);
@@ -126,7 +138,7 @@ describe("ElectronProtocol", () => {
       assert.isNull(forwardedHeaders.get("origin"));
       assert.isNull(forwardedHeaders.get("referer"));
       assert.isNull(forwardedHeaders.get("sec-fetch-site"));
-      assert.deepEqual(unhandleMock.mock.calls, [["t3code-dev"]]);
+      assert.deepEqual(unhandleMock.mock.calls, [["tsci-code-dev"]]);
     }).pipe(Effect.provide(layerProtocol)),
   );
 
@@ -142,14 +154,14 @@ describe("ElectronProtocol", () => {
         Effect.gen(function* () {
           const protocol = yield* ElectronProtocol.ElectronProtocol;
           yield* protocol.registerDesktopProtocol({
-            scheme: "t3code-dev",
+            scheme: "tsci-code-dev",
             targetOrigin: new URL("http://127.0.0.1:5733/"),
             clerkFrontendApiHostname: undefined,
           });
           yield* Effect.promise(() =>
-            handler!(new Request("t3code-dev://app//example.com/src/main.tsx?t=1")),
+            handler!(new Request("tsci-code-dev://app//example.com/src/main.tsx?t=1")),
           );
-          yield* Effect.promise(() => handler!(new Request("t3code-dev://app/\\example.com/")));
+          yield* Effect.promise(() => handler!(new Request("tsci-code-dev://app/\\example.com/")));
         }),
       );
 
@@ -174,11 +186,11 @@ describe("ElectronProtocol", () => {
         Effect.gen(function* () {
           const protocol = yield* ElectronProtocol.ElectronProtocol;
           yield* protocol.registerDesktopProtocol({
-            scheme: "t3code",
+            scheme: "tsci-code",
             targetOrigin: new URL("http://127.0.0.1:3773/"),
             clerkFrontendApiHostname: undefined,
           });
-          return yield* Effect.promise(() => handler!(new Request("t3code://other/")));
+          return yield* Effect.promise(() => handler!(new Request("tsci-code://other/")));
         }),
       );
 

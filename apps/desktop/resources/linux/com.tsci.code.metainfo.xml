@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>com.tsci.code</id>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>MIT</project_license>
+  <name>TSCI Code</name>
+  <summary>Design circuits with TypeScript</summary>
+  <developer id="com.tsci"><name>TSCI Code contributors</name></developer>
+  <description><p>A local circuit workspace powered by tscircuit. Edit TypeScript, preview schematics and PCBs, inspect a 3D board, and export fabrication files.</p></description>
+  <launchable type="desktop-id">tsci-code.desktop</launchable>
+  <icon type="stock">tsci-code</icon>
+  <provides><binary>tsci-code</binary></provides>
+  <categories><category>Development</category><category>Electronics</category></categories>
+  <url type="homepage">https://github.com/rushabhcodes/t3code</url>
+  <url type="bugtracker">https://github.com/rushabhcodes/t3code/issues</url>
+  <url type="vcs-browser">https://github.com/rushabhcodes/t3code</url>
+</component>

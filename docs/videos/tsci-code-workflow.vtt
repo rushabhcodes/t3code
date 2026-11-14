@@ -1,0 +1,33 @@
+WEBVTT
+
+00:00:00.000 --> 00:00:14.586
+01  Prepare an agent request
+The request stays unsent. The next steps demonstrate manual circuit editing.
+
+00:00:14.586 --> 00:00:26.742
+02  Open main.tsx in T3’s default editor
+Use Ctrl P to find the circuit source. The normal file tree and editor are preserved.
+
+00:00:26.742 --> 00:00:35.110
+03  Change the resistor from 330 ohms to 1k
+Edit the real TSX file, then save it with Ctrl S.
+
+00:00:35.110 --> 00:00:47.599
+04  Build the circuit in T3’s terminal
+Run the standard tscircuit build. Read both the result and the part warnings.
+
+00:00:47.599 --> 00:01:00.600
+05  Inspect the standard tscircuit preview
+The existing Browser panel displays tsci dev. R1 now reads 1kΩ.
+
+00:01:00.600 --> 00:01:14.269
+06  Review the exact source change
+Use git diff in the normal terminal before you commit your circuit changes.
+
+00:01:14.269 --> 00:01:29.086
+07  Export fabrication files with the CLI
+The starter needs engineering and part review before manufacturing.
+
+00:01:29.086 --> 00:01:36.758
+TSCI Code · Circuit workflow complete
+T3’s original editor, terminal, and Browser. Your project remains a normal Git repository.

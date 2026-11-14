@@ -8,6 +8,14 @@ The interface follows tscircuit.com's white, charcoal, and warm yellow palette, 
 
 ![T3's existing file editor displaying the LED circuit, with the tscircuit theme and TSCI Code branding.](docs/images/tsci-code/04-existing-file-editor.png)
 
+## Watch the desktop workflow
+
+[![Watch the TSCI Code desktop workflow recording.](docs/images/tsci-code/workflow-video-poster.jpg)](docs/videos/tsci-code-workflow.mp4)
+
+[Watch or download the screen recording (MP4)](docs/videos/tsci-code-workflow.mp4) · [Text captions](docs/videos/tsci-code-workflow.vtt)
+
+The captioned recording follows **Pocket light** through T3's original desktop interface: prepare an agent request, open `main.tsx`, change R1 from 330 ohms to 1k, build the circuit, inspect the schematic, review `git diff`, and export Gerbers. The request stays unsent; the source edits and terminal commands are performed manually in the recording.
+
 ## Install and start
 
 This fork currently ships as source. TSCI Code installers and a hosted TSCI service have not been published. Use the desktop development command below to run the complete Electron app.

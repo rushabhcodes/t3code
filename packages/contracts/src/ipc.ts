@@ -1045,34 +1045,7 @@ export type DesktopMediaRead = typeof DesktopMediaReadSchema.Type;
 export const SystemSettingsPaneSchema = Schema.Literals(["full-disk-access"]);
 export type SystemSettingsPane = typeof SystemSettingsPaneSchema.Type;
 
-export const CircuitFileSchema = Schema.Struct({
-  name: Schema.String,
-  path: Schema.String,
-  text: Schema.String,
-});
-export const CircuitSavedFileSchema = Schema.Struct({ name: Schema.String, path: Schema.String });
-export const CircuitSaveInputSchema = Schema.Struct({
-  name: Schema.String,
-  text: Schema.String,
-  path: Schema.NullOr(Schema.String),
-  encoding: Schema.Literals(["utf8", "base64"]),
-});
-
-export type CircuitDesktopCommand = "new" | "open" | "save" | "save-as" | "run" | "guide";
-export interface CircuitDesktopBridge {
-  readonly platform: string;
-  openCircuitFile: () => Promise<typeof CircuitFileSchema.Type | null>;
-  saveCircuitFile: (
-    input: typeof CircuitSaveInputSchema.Type,
-  ) => Promise<typeof CircuitSavedFileSchema.Type | null>;
-  onCommand: (listener: (command: CircuitDesktopCommand) => void) => () => void;
-}
-
 export interface DesktopBridge {
-  openCircuitFile?: () => Promise<typeof CircuitFileSchema.Type | null>;
-  saveCircuitFile?: (
-    input: typeof CircuitSaveInputSchema.Type,
-  ) => Promise<typeof CircuitSavedFileSchema.Type | null>;
   getAppBranding: () => DesktopAppBranding | null;
   getRelayTelemetryEnabled: () => boolean;
   getPathForFile: (file: File) => string;

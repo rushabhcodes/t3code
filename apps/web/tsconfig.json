@@ -9,8 +9,6 @@
     "jsx": "react-jsx",
     "lib": ["ES2023", "ESNext.Disposable", "DOM", "DOM.Iterable"],
     "paths": {
-      "@tscircuit/pcb-viewer": ["./src/circuits/vendor/pcb-viewer.d.ts"],
-      "@tscircuit/schematic-viewer": ["./src/circuits/vendor/schematic-viewer.d.ts"],
       "~/*": ["./src/*"]
     },
     "plugins": [

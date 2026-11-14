@@ -1,296 +1,202 @@
 <p align="center"><img src="assets/tsci/logo.svg" width="84" height="84" alt="TSCI Code" /></p>
 <h1 align="center">TSCI Code</h1>
-<p align="center">The circuit is the code.</p>
+<p align="center">Control Claude Code, Codex, and more to build circuits—from your computer or phone.</p>
 
-TSCI Code is a local desktop workbench for designing electronics with **TypeScript and tscircuit**. Write a circuit, inspect its schematic and PCB, see the board in 3D, and export the files for your next step. It is built on the MIT-licensed [T3 Code](https://github.com/pingdotgg/t3code) desktop and agent platform.
+TSCI Code is a circuit-focused fork of [T3 Code](https://github.com/pingdotgg/t3code). It keeps T3's agent threads, default file editor, terminal, Git review, Browser panel, and remote connections. Bring your coding agent, describe a circuit, review its TSX, and run the standard [tscircuit](https://tscircuit.com) tools in the same workspace.
 
-The circuit editor needs **no account, API key, or installed coding agent**. The inherited agent workspace is available separately when you want help working on a source project.
+The interface follows tscircuit.com's white, charcoal, and warm yellow palette, with Geist and JetBrains Mono. New projects start with a small LED circuit and ordinary project actions. Existing tscircuit repositories open through T3's existing project picker.
 
-## Install and launch
+![T3's existing file editor displaying the LED circuit, with the tscircuit theme and TSCI Code branding.](docs/images/tsci-code/04-existing-file-editor.png)
 
-TSCI Code currently ships as source. There is no published installer to download yet. You can run the desktop app directly or build an installable package. The screenshots below show the real standalone editor on Linux; native Open/Save dialogs follow your operating system.
+## Install and start
 
-### 1. Get the source and dependencies
+This fork currently ships as source. TSCI Code installers and a hosted TSCI service have not been published. Use the desktop development command below to run the complete Electron app.
 
-Install [Git](https://git-scm.com/downloads) and **Node.js 26.12.1**, then open a terminal. The repository pins **pnpm 12.14.0**.
+### 1. Install the prerequisites
+
+Install [Git](https://git-scm.com/downloads), **Node.js 26.12.1**, and [Bun](https://bun.sh/docs/installation). This repository pins **pnpm 12.14.0**. Bun runs the standard tscircuit CLI inside your circuit projects; the desktop application itself uses Node and Electron.
 
 ```sh
 node --version                       # v26.12.1
 npm install -g pnpm@12.14.0
 pnpm --version                       # 12.14.0
+bun --version
+
 git clone https://github.com/rushabhcodes/t3code.git tsci-code
 cd tsci-code
 pnpm install
 ```
 
-Keep the terminal open in the `tsci-code` directory for the commands that follow. The first install needs internet access to download dependencies.
+Install and sign in to at least one supported coding agent, such as [Claude Code](https://code.claude.com/docs/en/setup) or [Codex](https://developers.openai.com/codex/cli/). TSCI Code uses your agent's authentication and subscription. You can browse projects and run circuit commands without an agent; AI turns require a configured provider.
 
-### 2. Start the desktop app
-
-```sh
-pnpm dev                             # same as pnpm dev:desktop
-```
-
-The launcher builds the Electron shell, starts the renderer, and opens TSCI Code. The compiler, PCB router, schematic viewer, and 3D renderer are bundled locally. You do not need an account, API key, coding agent, or Rust toolchain for this editor.
-
-Electron needs a graphical desktop and its usual OS runtime libraries. If its binary was not downloaded, run `pnpm --filter @t3tools/desktop ensure:electron`, then try again. Stop the development launcher with **Ctrl C** when finished; it also stops the processes it started.
-
-To try the same editor in a browser instead:
+On Linux, desktop development also needs a C/C++ toolchain, `pkg-config`, and libsecret headers. On Debian 13 / Ubuntu 24.04:
 
 ```sh
-pnpm dev:studio
+sudo apt-get install build-essential pkg-config libsecret-1-dev libgtk-3-0t64 libnss3 libasound2t64 libgbm1
 ```
 
-Open the local URL Vite prints. Browser drafts belong to that browser profile and origin, so reuse the same port when returning to them. The desktop development app uses a stable origin for draft recovery.
+For other distributions, see [desktop prerequisites](docs/operations/development.md#linux-appimage-prerequisites).
 
-### 3. Build a standalone package (optional)
+### 2. Launch the original T3 desktop workflow
 
-For a Linux AppImage, run:
+From the repository root:
 
 ```sh
-pnpm dist:desktop:linux
+pnpm dev:desktop
 ```
 
-Find the generated `.AppImage` in `release/`. For example, the current x64 package can be started with:
+This starts the server, web renderer, and Electron shell. Keep the terminal open; **Ctrl C** stops the development launcher. If Electron's runtime is missing, run `pnpm --filter @t3tools/desktop ensure:electron` and try again.
+
+For the web client, use:
 
 ```sh
-chmod +x release/TSCI-Code-0.1.9-x86_64.AppImage
-./release/TSCI-Code-0.1.9-x86_64.AppImage
+pnpm dev
 ```
 
-Use the actual filename if the version or architecture differs. On Linux systems without working FUSE, run the AppImage with `APPIMAGE_EXTRACT_AND_RUN=1` before its path. This source and Linux packaging workflow has been exercised; macOS and Windows packaging commands are listed [below](#build-desktop-packages) and need their corresponding host OS.
+Open the **complete pairing URL** printed by the launcher. A fresh browser needs that URL to authenticate. The web client connects to the same kind of host server and workspace as the desktop app. Development data stays in the checkout's ignored `.t3` directory; desktop application profiles use the fork's separate TSCI paths.
 
-## Walkthrough: from first launch to a saved circuit
+## Walkthrough: your first circuit
 
-Follow this small **Desk light** project through the entire workflow. The default appearance follows [tscircuit.com](https://tscircuit.com): white surfaces, charcoal controls, warm yellow highlights, Geist, and JetBrains Mono.
+These are captures of the running implementation. The composer screenshots use T3's free **Replay (dev) / Showcase** provider for demonstration; select your installed Claude Code, Codex, or another provider for real circuit changes. The circuit previews and build results come from the actual tscircuit CLI.
 
-### 4. Meet your workbench
+### 3. Complete the built-in agent onboarding
 
-On first launch, read the welcome screen and select **Let’s build something**. If you already have a project, **Open existing** lets you skip the starter flow.
+On first launch, T3's existing welcome screen checks the agents available on your host. Expand **Add more agents** to configure another provider, then select **Start**. You can return to agent configuration in Settings.
 
-![First launch: the welcome dialog introduces source editing, live previews, and exports.](docs/images/tsci-code/01-welcome.png)
+![The existing onboarding checks Codex and offers additional agents before starting TSCI Code.](docs/images/tsci-code/01-agent-onboarding.png)
 
-### 5. Choose a starter
+### 4. Create or open a project
 
-Choose **Hello, LED** and press **Continue**. The other starters are **Voltage divider**, **RC low-pass filter**, and a blank board. Each gives you editable source rather than a locked example.
+Choose **Add project → New project**, or press **Ctrl K** (**⌘ K** on macOS) and search for **New project**. Enter **Pocket light** and create it. The existing GitHub option is optional; leave it unchecked to keep the project local.
 
-![Choose a starter: Hello, LED is selected alongside the other circuit templates.](docs/images/tsci-code/02-choose-template.png)
+![T3's existing New project dialog creates Pocket light, with optional GitHub repository creation.](docs/images/tsci-code/02-new-circuit-project.png)
 
-### 6. Name and create the project
+The initial Git repository contains:
 
-Enter **Desk light** in **Project name**, then select **Create circuit**. The editor opens `main.tsx` and compiles the starter.
+| File                    | Purpose                                                                |
+| ----------------------- | ---------------------------------------------------------------------- |
+| `main.tsx`              | A 30 × 20 mm LED board with J1, R1, D1, and connected traces.          |
+| `package.json`          | The pinned tscircuit dependency and standard `dev` / `build` commands. |
+| `tscircuit.config.json` | The `main.tsx` entry point.                                            |
+| `t3.json`               | T3's existing Setup, Dev, and Build project actions.                   |
+| `README.md`             | Instructions for that circuit project.                                 |
 
-![Create a project named Desk light in the last onboarding step.](docs/images/tsci-code/03-name-project.png)
+For an existing design, choose **Add existing project** and select a local folder, Git URL, or GitHub repository. Existing projects keep their files and configuration. Run commands from that project's README; its package scripts can be added through T3's existing project actions settings.
 
-### 7. Find your way around
+### 5. Choose an agent and start a thread
 
-The explorer holds projects and source files. The middle pane edits TSX; the right pane previews the compiled circuit. Wait for **Circuit up to date** in the status bar. **Code**, **Split**, and **Preview** switch the layout; this walkthrough uses Split.
+Use the model/provider selector in the existing composer. Give the agent a concrete circuit task, for example:
 
-The **PCB** tab shows pads, routes, and the board outline. Scroll to zoom and drag to pan. The Problems row reports diagnostics that still need review, including warnings from starter circuits.
+> Review this tscircuit LED board. Explain the power connections, change R1 from 330 ohms to 1k ohm, then run bun run build. Show me the diff before I commit.
 
-![The first successful build: Desk light source beside its routed PCB preview.](docs/images/tsci-code/04-pcb-editor.png)
+Send the message to start the thread. Follow the agent's progress, answer questions, and review tool approvals using T3's standard controls. Your provider handles source changes and commands on the host machine. You can reopen the thread later to continue the work.
 
-### 8. Edit a component and confirm the result
+![The original T3 composer with a circuit-specific request and the existing project controls.](docs/images/tsci-code/03-agent-thread.png)
 
-In `main.tsx`, change `resistance="330"` to `resistance="1k"`. With **Auto-run** enabled, the editor rebuilds after you pause typing. With it disabled, choose **Run circuit** or press **Ctrl Enter** (**⌘ Enter** on macOS).
+### 6. Inspect and edit the TSX in T3's default editor
 
-Open **BOM**. R1 now reads **1000 Ω**, confirming the preview reflects your changed source. Device draft saving happens independently of compilation.
+Open the right panel and choose **Files**, or press **Ctrl P** (**⌘ P**) and search for `main.tsx`. The same editor, file tree, syntax highlighting, and save behavior that T3 provides are used here.
 
-![After editing R1 to 1k, the bill of materials shows its value as 1000 ohms.](docs/images/tsci-code/05-edit-and-bom.png)
+Try changing `resistance="330"` to `resistance="1k"`. The existing editor saves the file to your project on the host; **Ctrl S** (**⌘ S**) flushes the save. Changes made by an agent also appear in these files. The screenshot at the top shows the saved 1k edit.
 
-### 9. Inspect the schematic
+### 7. Install, preview, and build with project actions
 
-Select **Schematic** to inspect the electrical connections and component labels. `schX` and `schY` control schematic placement independently of PCB placement. Review the viewer's warnings as well as the Problems panel.
+After starting a thread, open **Project actions** in the thread controls. Select **Setup**, then press its run button. Repeat with **Dev** to start the preview, or **Build** to check the circuit. Selecting an action chooses it; the adjacent run button executes it.
 
-![The schematic connects J1, R1, and D1, with the updated 1k resistor label.](docs/images/tsci-code/06-schematic.png)
+![The existing Project actions menu reads Setup, Dev, and Build from the generated t3.json.](docs/images/tsci-code/05-project-actions.png)
 
-### 10. Inspect the board in 3D
+The actions run ordinary commands in T3's terminal:
 
-Select **3D**. Drag to rotate, right-drag to pan, and scroll to zoom. The reset button restores a view of the whole board. The renderer shows the outline, drilled holes, pads, traces, and **generic component bodies**; detailed supplier CAD models are not included.
+| Action | Command         | When to use it                                                            |
+| ------ | --------------- | ------------------------------------------------------------------------- |
+| Setup  | `bun install`   | Once after creating or cloning the circuit, and after dependency changes. |
+| Dev    | `bun run dev`   | Keep running while inspecting the schematic, PCB, or 3D preview.          |
+| Build  | `bun run build` | After an edit and before reviewing generated design outputs.              |
 
-![An interactive 3D view of the Desk light board and its generic component bodies.](docs/images/tsci-code/07-3d-board.png)
+You can also open **Terminal** and run the same commands yourself. Read its output for errors and warnings. A successful starter build reports `Circuits 1 passed` and writes to `dist/`.
 
-### 11. Explore the component library
+![The original T3 terminal shows a successful tscircuit build and its circuit warnings.](docs/images/tsci-code/05b-terminal-build.png)
 
-Select **Component library** in the left rail to browse resistor, capacitor, and LED snippets. Inserting a snippet creates a unique reference. Set its positions and connect its pins with traces before treating it as part of a finished design. Select **Explorer** to return to your files.
+### 8. Open the standard tscircuit preview in Browser
 
-![The component library offers circuit snippets alongside the source and preview.](docs/images/tsci-code/08-component-library.png)
+Dev prints a local URL, usually `http://localhost:3020`. Use the actual URL it prints if that port is occupied. Open T3's existing **Browser** panel and enter it. The preview is served by `tsci dev`; it is the standard tscircuit interface inside T3's Browser.
 
-### 12. Understand build errors
+Switch between **PCB**, **Schematic**, and **3D** using the preview's own controls. Saving source while Dev is running updates the preview. In this example, **Schematic** shows R1 as **1kΩ**, matching the saved TSX.
 
-Open **Problems** to inspect compiler and circuit diagnostics. For this screenshot, the source was deliberately changed to incomplete TSX and built. The editor shows **Build needs attention** while retaining the last successful preview; it also marks that preview as needing a rebuild.
+![T3's existing Browser panel displays the standard tscircuit dev schematic with the updated 1k resistor.](docs/images/tsci-code/06-tscircuit-browser.png)
 
-Restore valid source and run it again. Fabrication exports stay disabled while the result is stale, building, or contains errors. You can still save your source while correcting it.
+The current PCB renderer requires WebGPU. If your browser or graphics driver reports no WebGPU adapter, use Schematic while checking GPU/browser support; the CLI build and exports can still run. Keep Dev running until you finish inspecting the circuit.
 
-![An intentional syntax error appears in Problems while the last good preview remains visible.](docs/images/tsci-code/09-build-diagnostics.png)
+### 9. Review the Git diff and save your work
 
-### 13. Save a portable project
+Open **Changes** or add the existing **Diff** surface. Review `main.tsx` and any dependency lockfile changes. Compare the source with the agent's explanation and the circuit preview. Use T3's normal commit and push controls when the changes are ready.
 
-After restoring a successful build, select **Save** or press **Ctrl S** (**⌘ S**). The desktop app opens a native save dialog the first time; choose a folder and save `desk-light.tsci.json`. Later saves update that file. **Save As** creates another copy.
+![The existing Git diff reviews the resistor change in main.tsx before committing.](docs/images/tsci-code/07-git-review.png)
 
-You can also open **Export → TSCI project**. A `.tsci.json` file contains every source file and the entry point, so another installation can reopen it. In the browser, Save downloads the project instead of updating a chosen disk file. **Draft saved** only confirms device storage; keep this portable file as your backup.
+Projects remain normal folders and Git repositories. Commit the source and dependency lockfile so you can reopen the design on another machine. Stop Dev from its terminal when finished; reopen the project and run Dev again next time.
 
-![The Export dialog offers a portable TSCI project, source ZIP, and compiled design formats.](docs/images/tsci-code/10-save-and-export.png)
+### 10. Export using the tscircuit CLI
 
-### 14. Export the files you need
-
-In **Export**, choose **Gerber fabrication files** for a ZIP of copper, mask, paste, silkscreen, outline, and drill files. Choose **Bill of materials** for CSV, **Schematic SVG** for documentation, or **Circuit JSON** for other tscircuit tools. **Source project** exports the editable files with CLI configuration.
-
-Wait for the export confirmation. On desktop, choose the destination in the native dialog; in the browser, check your download location. The example Gerber ZIP was opened and checked during this walkthrough. Review the board, footprints, electrical design, and your manufacturer's design rules before ordering.
-
-![The workbench confirms the Gerber export completed, with the edited BOM still visible.](docs/images/tsci-code/11-export-complete.png)
-
-### 15. Use the command palette
-
-Press **Ctrl K** (**⌘ K**) or select **Search commands…**. Search for project switching, new/open/save, exports, layouts, settings, or the guide. Close the palette to return to the editor. The [keyboard table](#keyboard-workflow) lists the main shortcuts.
-
-![The command palette provides searchable project, export, layout, and help actions.](docs/images/tsci-code/12-command-palette.png)
-
-### 16. Set your preferences
-
-Select **Workspace settings** in the left rail. Rename the project, choose the appearance, and set **Auto-run circuits**. Preferences stay on this device. Keeping auto-run off is useful when making several edits before compiling.
-
-![Workspace settings show the project name, light and dark appearance, and auto-run preference.](docs/images/tsci-code/13-workspace-settings.png)
-
-### 17. Try the optional dark appearance
-
-Choose **Dark**, then close settings. Return to **Light** whenever you want the default tscircuit.com appearance. The source and saved project stay the same across both themes.
-
-![The same Desk light project and BOM in the optional dark appearance.](docs/images/tsci-code/14-dark-theme.png)
-
-### 18. Return to a recovered draft
-
-Wait for **Draft saved**, then close and reopen the app. The active project and edited source return from local storage. In the browser, reload the same URL in the same profile. This screenshot follows a reload with auto-run off: the restored project compiles on opening and R1 remains **1000 Ω**.
-
-Clearing app/browser data removes local drafts. If recovery fails, use **Retry recovery** or a temporary workspace and save your files manually; the app does not report failed storage as saved.
-
-![After reopening, local draft recovery preserves the Desk light project and the 1000-ohm edit.](docs/images/tsci-code/15-draft-recovery.png)
-
-### 19. Reopen your saved file on another workspace
-
-Use **Open project or TSX** in Explorer or **Ctrl O** (**⌘ O**), then choose `desk-light.tsci.json`. You can also select **Open existing** on the welcome screen. Wait for compilation and check the source and BOM.
-
-The screenshot below imports the saved file into a fresh browser profile with no prior drafts. The project name, source, and **1000 Ω** value are preserved. `.tsx` and `.jsx` files can also be opened; a portable project is the choice for keeping multiple files together.
-
-![A fresh workspace opens the exported Desk light project and rebuilds the same edited BOM.](docs/images/tsci-code/16-open-saved-project.png)
-
-To repeat the welcome flow, open **Guide → Replay the welcome tour**. The guide also explains component coordinates and trace selectors.
-
-## Write circuits with TSX
-
-A circuit entry point exports a component containing a board. Components need unique names; footprints and dimensions use tscircuit's units and conventions.
-
-```tsx
-export default () => (
-  <board width="30mm" height="20mm" autorouter="auto-local">
-    <pinheader name="J1" pinCount={2} footprint="pinrow2" pcbX={-10} schX={-5} />
-    <resistor name="R1" resistance="330" footprint="0603" pcbX={-4} schX={-2} />
-    <led name="D1" color="green" footprint="0603" pcbX={4} schX={2} />
-    <trace from="net.VCC" to=".R1 > .pin1" />
-    <trace from=".R1 > .pin2" to=".D1 > .pin1" />
-    <trace from=".D1 > .pin2" to="net.GND" />
-    <trace from=".J1 > .pin1" to="net.VCC" />
-    <trace from=".J1 > .pin2" to="net.GND" />
-  </board>
-);
-```
-
-Use `pcbX`/`pcbY` for board positions and `schX`/`schY` for schematic positions. The component library inserts resistor, capacitor, and LED snippets with unique references. Place inserted components and add their connections before manufacturing.
-
-Create more files with the explorer's **New source file** action. Relative imports resolve inside the project:
-
-```tsx
-import { Indicator } from "./components/Indicator";
-```
-
-The active file can differ from the entry point. Select **Use as entry point** on another TSX/JSX file to build it instead. The editor supports syntax highlighting, search, undo/redo, bracket matching, tab indentation, and circuit-aware completion. See the [tscircuit documentation](https://docs.tscircuit.com) for the full component API.
-
-## Files, drafts, and recovery
-
-- **Projects:** up to 20 local projects, each with up to 100 source files and a 2 MB portable project limit. Import `.tsci.json`, `.tsx`, or `.jsx` with Open.
-- **Local recovery:** changes are saved to IndexedDB after a short pause. “Draft saved” means the device transaction completed; it does not mean a file was written to disk. The editor warns before leaving while a draft is uncommitted or storage has failed.
-- **Desktop Save:** native dialogs choose the destination. Later saves update that chosen file with an atomic replacement. Opening a single TSX/JSX file and saving it preserves the source format. Use Save As to create a complete project instead.
-- **Browser Save:** downloads a portable project. Browser drafts stay in that browser profile and origin.
-- **Recovery failures:** retry without changing the saved workspace, or enter a clearly marked temporary workspace and save files manually. A storage failure never becomes a “saved” status.
-- **Backups:** exported files remain on disk when a local draft is removed. Clearing app/browser data removes local drafts. Save project files for backups and moving between devices.
-
-The compiler is bundled locally and runs in a disposable web worker. Editing cancels obsolete builds, and a 30-second ceiling stops stalled code or routing. Built-in starters compile without a hosted rendering service. Automatic supplier lookups are disabled for local editing. Add part numbers explicitly when preparing a BOM. External package imports and custom 3D assets can require internet access. Project source is executable TypeScript; open source from people you trust.
-
-TSCI Code uses its own desktop identity (`com.tsci.code`), protocol (`tsci-code://`), and Chromium profiles (`tsci-code-studio` and `tsci-code-studio-dev` inside your OS app-data directory). It can coexist with T3 Code. Set `TSCI_USER_DATA_DIR` to an isolated directory for testing. Internal `@t3tools/*` package names and `T3CODE_*` variables remain for compatibility with the optional agent platform.
-
-## Export formats
-
-| Format          | Use                                                                                          |
-| --------------- | -------------------------------------------------------------------------------------------- |
-| `.tsci.json`    | Reopen the full editable project in TSCI Code                                                |
-| Source ZIP      | TSX/source files, `tscircuit.config.json`, and a package manifest with `dev`/`build` scripts |
-| `.circuit.json` | Compiled tscircuit design for other tools                                                    |
-| BOM CSV         | Component references, types, values, and available manufacturer part numbers                 |
-| Schematic SVG   | A vector drawing for documentation                                                           |
-| Gerber ZIP      | Copper, solder mask, paste, silkscreen, outline, and Excellon drill files                    |
-
-Source/project exports work before a build. Compiled exports require a current result, and Gerbers additionally require no build errors. Circuit checks do not replace electrical review, a manufacturer's DRC, or checking footprints and part availability.
-
-## Keyboard workflow
-
-| Action          | macOS      | Windows / Linux |
-| --------------- | ---------- | --------------- |
-| Command palette | ⌘ K        | Ctrl K          |
-| Save            | ⌘ S        | Ctrl S          |
-| Save As         | ⌘ Shift S  | Ctrl Shift S    |
-| Open            | ⌘ O        | Ctrl O          |
-| Run circuit     | ⌘ Enter    | Ctrl Enter      |
-| Autocomplete    | Ctrl Space | Ctrl Space      |
-
-The command palette includes project switching, new/open/save, exports, settings, and the guide. Settings controls dark/light appearance and auto-run.
-
-## Work with an agent
-
-The inherited T3 agent platform remains available as a separate workflow:
+After the build succeeds, run exports in the circuit project's terminal:
 
 ```sh
-pnpm dev:agents                 # web editor plus local agent server
-pnpm dev:desktop:agents         # inherited desktop with agent server
+bun run build
+bun run tsci export main.tsx --format schematic-svg --output dist/schematic.svg
+bun run tsci export main.tsx --format gerbers --output dist/pocket-light-gerbers.zip
 ```
 
-In the full web application, choose **Coding agents** in the circuit editor's left rail. Export a source ZIP, extract it into a folder, and add that folder to the agent workspace. Connect an installed, authenticated provider such as Codex or Claude Code, then reopen the updated source in the circuit editor.
+The starter is a learning circuit. Select manufacturer parts and review the electrical design, footprints, warnings, and fabrication rules before ordering. Supplier lookup failures and missing part numbers are visible in the CLI output. Use `bun run tsci export --help` for supported formats and options; [tscircuit documentation](https://docs.tscircuit.com) explains the design and export tools.
 
-Agent work uses your provider account and subscriptions. Circuit drafts and agent folders do not synchronize automatically. The wordmark in the agent workspace returns to the circuit editor. The compact desktop build contains the circuit workflow; it does not start the agent platform. The inherited desktop workflow needs the native build prerequisites in [the development runbook](docs/operations/development.md).
+### 11. Continue from another computer or phone
 
-## Build desktop packages
+T3's existing host/connection model carries over. The host runs the agents, owns the files, and must remain running and reachable. A connected device controls that host and its threads.
+
+In **Settings → Connections → Sharing & access**, enable network access and use the existing **Create link** pairing control. **Environments → Add environment** connects another host. For development over a Tailscale network:
+
+```sh
+pnpm dev --share
+```
+
+Open the full pairing URL printed by that command on the other computer or phone. Keep pairing links private. The web UI adapts to a phone viewport; open the sidebar to switch projects or threads. The circuit dev URL shown as `localhost` belongs to the host—use the host's Browser surface when available, or a reachable address for a separately opened preview.
+
+![The existing Connections settings manage the host and device connection workflow.](docs/images/tsci-code/08-connections.png)
+
+![TSCI Code's existing web interface at phone width, with the same project and agent composer.](docs/images/tsci-code/09-phone-workflow.png)
+
+There is no published TSCI mobile app or hosted TSCI relay. The inherited native mobile sources and T3 service links belong to upstream T3 Code. See [remote access](docs/operations/development.md#sharing-and-remote-debugging) and the [mobile source README](apps/mobile/README.md) for the corresponding upstream workflows.
+
+## Build the desktop application
+
+For a local production build and launch:
 
 ```sh
 pnpm build:desktop
+pnpm start:desktop
 ```
 
-Package on the corresponding host OS:
+To create an unsigned installer on the corresponding operating system:
 
 ```sh
-pnpm dist:desktop:linux       # Linux AppImage
-pnpm dist:desktop:dmg         # macOS DMG
-pnpm dist:desktop:win:x64     # Windows x64 installer
+pnpm dist:desktop:linux              # Linux x64 AppImage
+pnpm dist:desktop:dmg                # macOS DMG
+pnpm dist:desktop:win                # Windows NSIS installer
 ```
 
-Artifacts are written under `release/`. `pnpm start:desktop` opens an existing build. Windows and macOS signing/notarization require your own credentials. This compact editor has no automatic update feed; distribute new installers through your own releases.
+Artifacts are written to `release/`. Packaging uses T3's full desktop pipeline, including its native helpers. It requires the platform-specific toolchains, including Rust; read [desktop artifact prerequisites](docs/operations/development.md#desktop-artifacts) before packaging. The restored production desktop build and Linux Electron launch were verified for this implementation. Installers for macOS, Windows, and this restored full desktop pipeline have not been validated here.
 
-Production builds generate third-party notices and fail if a dependency lacks a distributable notice. Compatible viewer releases are pinned, and verified license declarations/notices are recorded in `third-party-licenses.config.json`. Keep this check enabled when updating dependencies.
-
-Regenerate the web and desktop icons from `assets/tsci/logo.svg` with `pnpm icons:export`; verify them with `pnpm icons:check`.
-
-## Development checks
+## Development and verification
 
 ```sh
-pnpm --filter @t3tools/web typecheck:studio
-pnpm exec vp test run apps/web/src/circuits/project.test.ts
-pnpm --filter @t3tools/web exec vp test run --project browser src/circuits/compiler.browser.test.ts
-pnpm --filter @t3tools/desktop exec vp test run src/circuits/CircuitFiles.test.ts src/electron/ElectronProtocol.test.ts
-pnpm check:changed
+pnpm install --frozen-lockfile
+pnpm exec vp test run apps/server/src/project/ManagedProjectFolders.test.ts apps/desktop/src/electron/ElectronProtocol.test.ts
+pnpm build:desktop
+pnpm exec vp run check:changed
 ```
 
-For an existing Chromium installation in CI, set `TSCI_CHROMIUM_PATH=/path/to/chromium` for browser tests. Otherwise use Playwright's installed Chromium. The worker tests compile every starter and exercise fabrication exports, invalid TSX, and cancellation. Native file tests cover destination grants, cancellation, atomic writes, and binary exports.
+The project creation tests cover the starter files, scripts, and initial Git commit. The walkthrough was exercised with isolated development state: creating a project, streaming a free Replay turn, editing and saving TSX in the default editor, building/exporting with the tscircuit CLI, and opening the schematic in the original desktop Browser. Phone imagery demonstrates the responsive web layout; native mobile devices and paid provider turns were not exercised for this change.
 
-## License and credits
+Existing `@t3tools/*` packages and `T3CODE_*` environment names remain compatible with the upstream codebase. See [CONTRIBUTING.md](CONTRIBUTING.md) and [development documentation](docs/operations/development.md) for the inherited architecture and contributor workflows.
 
-[MIT](LICENSE). The original T3 Code copyright and license are retained. TSCI Code is a derivative project, not an official T3 Code release. Circuit compilation and viewers come from the [tscircuit ecosystem](https://github.com/tscircuit); the editor uses CodeMirror. Third-party notices remain in `third-party-licenses/`. The 3D pane uses Three.js to render the board outline, drilled holes, pads, traces, and generic component bodies directly from Circuit JSON. It redraws on camera input, resize, and circuit changes. Detailed supplier CAD models are not included.
+## Credits and license
 
-The product is named TSCI Code. The GitHub repository is still `rushabhcodes/t3code`; the remote repository slug has not been renamed.
+Built on [T3 Code](https://github.com/pingdotgg/t3code) by T3 Tools and its contributors, under the [MIT license](LICENSE). Circuit compilation, routing, previews, and exports come from [tscircuit](https://github.com/tscircuit/tscircuit). This is an independent fork; preserve upstream copyright notices and review [third-party license configuration](third-party-licenses.config.json) when distributing it.

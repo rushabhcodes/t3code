@@ -289,14 +289,6 @@ peerDependencyRules:
     - vite
   allowedVersions:
     vite: "*"
-    # The tscircuit viewers use React APIs supported by our React 19 renderer.
-    "jscad-fiber>react": "19.3.0"
-    "jscad-fiber>react-dom": "19.3.0"
-    "use-mouse-matrix-transform>react": "19.3.0"
-    "jscad-electronics>react": "19.3.0"
-    "jscad-electronics>react-dom": "19.3.0"
-    "jscad-electronics>circuit-json": "0.0.548"
-    "jscad-electronics>@tscircuit/alphabet": "0.0.25"
     # Our react-native-screens fork is a 5.x prerelease, which ">= 4.0.0" excludes.
     "@react-navigation/native-stack>react-native-screens": "*"
     # ws 7 (React Native dev tooling) only calls isValidUTF8, unchanged in v6.
@@ -331,5 +323,3 @@ minimumReleaseAgeExclude:
   - "@anthropic-ai/claude-agent-sdk@0.3.321"
   - "@pierre/diffs@1.7.0-beta.3"
   - "@pierre/highlights@0.5.0"
-  - "@tscircuit/eval@0.0.1759 || 0.0.1760"
-  - "@tscircuit/runframe@0.0.3224"

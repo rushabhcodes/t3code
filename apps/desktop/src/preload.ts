@@ -104,8 +104,6 @@ function unwrapEnsureSshEnvironmentResult(result: unknown) {
 }
 
 contextBridge.exposeInMainWorld("desktopBridge", {
-  openCircuitFile: () => ipcRenderer.invoke(IpcChannels.OPEN_CIRCUIT_FILE_CHANNEL),
-  saveCircuitFile: (input) => ipcRenderer.invoke(IpcChannels.SAVE_CIRCUIT_FILE_CHANNEL, input),
   getAppBranding: () => {
     const result = ipcRenderer.sendSync(IpcChannels.GET_APP_BRANDING_CHANNEL);
     if (typeof result !== "object" || result === null) {

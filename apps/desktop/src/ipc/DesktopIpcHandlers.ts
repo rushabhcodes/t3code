@@ -1,6 +1,4 @@
 import * as Effect from "effect/Effect";
-import { installCircuitFileHandlers } from "./methods/circuits.ts";
-import * as CircuitFilePicker from "../circuits/CircuitFilePickerLegacy.ts";
 
 import { receiveProviderAuthCallback, cancelProviderAuthCallback } from "./methods/providerAuth.ts";
 import * as DesktopIpc from "./DesktopIpc.ts";
@@ -89,7 +87,6 @@ import {
 
 export const installDesktopIpcHandlers = Effect.fn("desktop.ipc.installHandlers")(function* () {
   const ipc = yield* DesktopIpc.DesktopIpc;
-  yield* installCircuitFileHandlers().pipe(Effect.provide(CircuitFilePicker.layer));
   yield* installNotificationBadge();
   yield* PreviewIpc.installPreviewEventForwarding();
 

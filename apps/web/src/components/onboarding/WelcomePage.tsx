@@ -275,7 +275,8 @@ export function WelcomePage({
               Welcome to TSCI Code
             </h1>
             <p className="mt-1.5 text-sm text-muted-foreground">
-              Setting up <span className="text-foreground">{label}</span>.
+              Control Claude Code, Codex, and more to design circuits. Setting up{" "}
+              <span className="text-foreground">{label}</span>.
             </p>
             <div className="mt-10 border-t border-border/60">
               <AgentsSection

@@ -2938,7 +2938,9 @@ export const createBuildConfig = Effect.fn("createBuildConfig")(function* (
     if (buildConfig.publish) {
       buildConfig.appImage = {
         artifactName:
-          updateChannel === "nightly" ? "T3-Code-Nightly-${arch}.${ext}" : "T3-Code-${arch}.${ext}",
+          updateChannel === "nightly"
+            ? "TSCI-Code-Nightly-${arch}.${ext}"
+            : "TSCI-Code-${arch}.${ext}",
       };
     }
     buildConfig.deb = {
@@ -3923,10 +3925,10 @@ const buildDesktopArtifactUnlocked = Effect.fn("buildDesktopArtifactUnlocked")(f
     private: true,
     packageManager: rootPackageJson.packageManager,
     description:
-      "TSCI Code is a TypeScript circuit editor. Design electronics with tscircuit, inspect schematics and PCBs, and export source, Gerbers, and bills of materials.",
+      "Control Claude Code, Codex, and other coding agents to design circuits with tscircuit, using T3 Code's project, file, terminal, and browser workflow.",
     license: "MIT",
-    homepage: "https://t3.codes",
-    author: "T3 Tools",
+    homepage: "https://github.com/rushabhcodes/t3code",
+    author: "TSCI Code contributors",
     main: "apps/desktop/dist-electron/boot.cjs",
     build: yield* createBuildConfig(
       options.platform,

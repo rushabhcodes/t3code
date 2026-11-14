@@ -66,10 +66,7 @@ export class ElectronProtocol extends Context.Service<
   }
 >()("@t3tools/desktop/electron/ElectronProtocol") {}
 
-function makeDesktopContentSecurityPolicy(
-  input: DesktopProtocolRegistrationInput,
-  circuitWorker = false,
-): string {
+function makeDesktopContentSecurityPolicy(input: DesktopProtocolRegistrationInput): string {
   const clerkOrigin = input.clerkFrontendApiHostname
     ? `https://${input.clerkFrontendApiHostname}`
     : undefined;
@@ -77,7 +74,6 @@ function makeDesktopContentSecurityPolicy(
     "'self'",
     "'unsafe-inline'",
     "'wasm-unsafe-eval'",
-    ...(circuitWorker ? ["'unsafe-eval'"] : []),
     ...(clerkOrigin ? [clerkOrigin] : []),
     "https://challenges.cloudflare.com",
   ];
@@ -261,21 +257,14 @@ export const make = Effect.gen(function* () {
         Effect.try({
           try: () => {
             Electron.protocol.handle(input.scheme, async (request) => {
-              const url = new URL(request.url);
-              // tscircuit evaluates TSX in an isolated worker; the renderer retains its stricter policy.
-              const policy =
-                url.searchParams.get("tsci-compiler") === "1" &&
-                /\/entrypoint(?:-[\w-]+)?\.js$/.test(url.pathname)
-                  ? makeDesktopContentSecurityPolicy(input, true)
-                  : contentSecurityPolicy;
               if ("assetDirectory" in input) {
                 return withContentSecurityPolicy(
                   await runPromise(serveDesktopAsset(request, input.assetDirectory)),
-                  policy,
+                  contentSecurityPolicy,
                 );
               }
               return runPromise(
-                proxyRequest(request, input.targetOrigin, policy).pipe(
+                proxyRequest(request, input.targetOrigin, contentSecurityPolicy).pipe(
                   Effect.catchTags({
                     ElectronProtocolFetchError: (error) => Effect.die(error.cause),
                   }),

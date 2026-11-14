@@ -1,7 +1,6 @@
 // @effect-diagnostics-next-line nodeBuiltinImport:off -- Vite config runs before any Effect runtime.
 import * as NodeFSP from "node:fs/promises";
 import * as NodeZlib from "node:zlib";
-import * as NodeURL from "node:url";
 
 import react from "@vitejs/plugin-react";
 import { tanstackRouter } from "@tanstack/router-plugin/vite";
@@ -28,33 +27,6 @@ import { formatAppDisplayName, resolveWebAppStageLabel } from "./src/branding.lo
 
 const repoEnv = loadRepoEnv();
 Object.assign(process.env, repoEnv);
-
-function circuitCompilerAsset(): Plugin {
-  const file = new URL(import.meta.resolve("@tscircuit/eval/worker-entrypoint"));
-  let contents: Promise<Buffer> | undefined;
-  return {
-    name: "tsci:compiler-asset",
-    configureServer(server) {
-      server.middlewares.use((request, response, next) => {
-        const url = new URL(request.url ?? "/", "http://localhost");
-        if (
-          url.searchParams.get("tsci-compiler") !== "1" ||
-          !url.pathname.endsWith("/entrypoint.js")
-        )
-          return next();
-        // This self-contained worker must not receive Vite's DOM-dependent HMR client or a 90 MB source map.
-        contents ??= NodeFSP.readFile(file);
-        void contents
-          .then((bytes) => {
-            response.setHeader("Content-Type", "text/javascript");
-            response.setHeader("Cache-Control", "no-cache");
-            response.end(bytes);
-          })
-          .catch(next);
-      });
-    },
-  };
-}
 
 // Signal single-origin dev explicitly; loadRepoEnv can restore deleted URL keys from .env.
 const isSingleOriginDev = process.env.T3CODE_SINGLE_ORIGIN_DEV === "1";
@@ -137,14 +109,6 @@ const browserTestProject = {
   optimizeDeps: {
     include: [
       "vite-plus/test/browser",
-      "@codemirror/autocomplete",
-      "@codemirror/commands",
-      "@codemirror/lang-javascript",
-      "@codemirror/state",
-      "@codemirror/view",
-      "codemirror",
-      "@tscircuit/pcb-viewer",
-      "@tscircuit/schematic-viewer",
       "@base-ui/react/autocomplete",
       "saxes",
       "@betteroffice/docx/editor",
@@ -358,7 +322,6 @@ export default defineConfig(({ command }) => {
     },
     assetsInclude: ["**/*.wasm"],
     plugins: [
-      circuitCompilerAsset(),
       bootstrapTitlePlugin(),
       devCompressionPlugin(),
       chunkCycleGuardPlugin(),
@@ -418,12 +381,6 @@ export default defineConfig(({ command }) => {
     },
     resolve: {
       tsconfigPaths: true,
-      alias: Object.fromEntries(
-        ["@tscircuit/pcb-viewer", "@tscircuit/schematic-viewer"].map((name) => [
-          name,
-          NodeURL.fileURLToPath(import.meta.resolve(name)),
-        ]),
-      ),
       dedupe: ["react", "react-dom"],
     },
     experimental: {
@@ -437,7 +394,7 @@ export default defineConfig(({ command }) => {
       // Warm the module graph before first request to avoid serial import transforms over tailnet.
       // Bundled dev ignores this; warmBundledDevPlugin handles it there.
       warmup: {
-        clientFiles: process.env.VITEST ? [] : ["./src/main.tsx"],
+        clientFiles: ["./src/main.tsx"],
       },
       watch: { exclude: rolldownWatchExclude },
       ...(devProxyTarget

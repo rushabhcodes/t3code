@@ -33,10 +33,6 @@ describe("ElectronProtocol", () => {
       const directory = yield* fileSystem.makeTempDirectoryScoped();
       yield* fileSystem.writeFileString(`${directory}/index.html`, "<html>app</html>");
       yield* fileSystem.writeFileString(`${directory}/app.js`, "export default 1;");
-      yield* fileSystem.writeFileString(
-        `${directory}/entrypoint-test.js`,
-        "self.onmessage = () => {};",
-      );
       let handler: ((request: Request) => Promise<Response>) | undefined;
       handleMock.mockImplementation((_scheme, nextHandler) => {
         handler = nextHandler;
@@ -61,14 +57,6 @@ describe("ElectronProtocol", () => {
       const script = yield* request("/app.js?v=1");
       assert.equal(yield* Effect.promise(() => script.text()), "export default 1;");
       assert.include(script.headers.get("content-type") ?? "", "javascript");
-      const compiler = yield* request("/entrypoint-test.js?tsci-compiler=1");
-      assert.include(compiler.headers.get("content-security-policy") ?? "", "'unsafe-eval'");
-      assert.notInclude(page.headers.get("content-security-policy") ?? "", "'unsafe-eval'");
-      const regularScript = yield* request("/entrypoint-test.js");
-      assert.notInclude(
-        regularScript.headers.get("content-security-policy") ?? "",
-        "'unsafe-eval'",
-      );
 
       assert.equal((yield* request("/missing.js")).status, 404);
       assert.equal((yield* request("/%2e%2e%2fsecret.txt")).status, 404);

@@ -17,7 +17,7 @@ const APP_DISPLAY_NAME = isDevelopment ? "TSCI Code (Dev)" : "TSCI Code (Beta)";
 const APP_BUNDLE_ID = isDevelopment
   ? `com.tsci.code.dev.${devBundleIdSuffix || "local"}`
   : "com.tsci.code";
-const APP_PROTOCOL_SCHEMES = isDevelopment ? ["t3code-dev"] : ["t3code"];
+const APP_PROTOCOL_SCHEMES = isDevelopment ? ["tsci-code-dev"] : ["tsci-code"];
 const LAUNCHER_VERSION = 20;
 const developmentMacIconPngPath = NodePath.join(
   repoRoot,

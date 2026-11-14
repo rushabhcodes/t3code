@@ -513,31 +513,6 @@ export default defineConfig({
         rules: { "shadcn/no-unknown-classes": "error" },
       },
       {
-        // The circuit renderer has its own stylesheet and does not load the agent UI's Tailwind theme.
-        files: ["apps/web/src/circuits/**"],
-        rules: {
-          "shadcn/no-unknown-classes": [
-            "error",
-            {
-              allow: [
-                "tsci-*",
-                "active",
-                "selected",
-                "error",
-                "primary",
-                "secondary",
-                "ghost",
-                "danger",
-                "compact",
-                "expanded",
-                "has-errors",
-                "layout-*",
-              ],
-            },
-          ],
-        },
-      },
-      {
         files: ["apps/web/src/**"],
         rules: { "t3code/no-outset-state-indicators": "error" },
       },

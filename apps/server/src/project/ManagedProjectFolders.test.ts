@@ -408,6 +408,25 @@ it.effect("starts a named project as a committed repository, and suffixes a take
           path.join(first.workspaceRoot, "assets", "icon.svg"),
         );
         assert.include(icon, ">PS</text>");
+        const source = yield* fileSystem.readFileString(path.join(first.workspaceRoot, "main.tsx"));
+        assert.include(source, '<board width="30mm"');
+        assert.include(source, "<resistor");
+        const manifest = JSON.parse(
+          yield* fileSystem.readFileString(path.join(first.workspaceRoot, "package.json")),
+        );
+        assert.equal(manifest.scripts.dev, "tsci dev");
+        assert.equal(manifest.scripts.build, "tsci build");
+        const config = JSON.parse(
+          yield* fileSystem.readFileString(path.join(first.workspaceRoot, "tscircuit.config.json")),
+        );
+        assert.equal(config.mainEntrypoint, "main.tsx");
+        const actions = JSON.parse(
+          yield* fileSystem.readFileString(path.join(first.workspaceRoot, "t3.json")),
+        );
+        assert.deepEqual(
+          actions.scripts.map((script: { name: string }) => script.name),
+          ["Setup", "Dev", "Build"],
+        );
         assert.equal(
           yield* gitOutput(first.workspaceRoot, ["log", "--format=%s"]),
           "Initial commit",

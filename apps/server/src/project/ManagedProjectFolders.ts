@@ -161,6 +161,7 @@ const ICON_BACKGROUNDS = [
 ] as const;
 
 const MAX_NAMED_FOLDER_ATTEMPTS = 100;
+const encodeProjectJson = Schema.encodeEffect(Schema.fromJsonString(Schema.Json, { space: 2 }));
 
 function escapeXml(value: string): string {
   return value
@@ -199,7 +200,24 @@ function namedProjectReadme(name: string): string {
     "",
     `# ${name}`,
     "",
-    "Created in [T3 Code](https://t3.codes).",
+    "A tscircuit project created in [TSCI Code](https://github.com/rushabhcodes/t3code).",
+    "",
+    "Edit main.tsx in the Files panel, or ask Claude Code, Codex, or another coding agent to change the circuit in a thread.",
+    "",
+    "## Run and preview",
+    "",
+    "Run Setup, then Dev from the project actions menu, or use the terminal:",
+    "",
+    "```sh",
+    "bun install",
+    "bun run dev",
+    "```",
+    "",
+    "Open the local URL printed by tsci dev in the existing Browser panel. Keep Dev running while you review the circuit. Use bun run build for circuit checks and generated outputs.",
+    "",
+    "Circuit source: main.tsx. Entrypoint configuration: tscircuit.config.json.",
+    "",
+    "[tscircuit documentation](https://docs.tscircuit.com)",
     "",
   ].join("\n");
 }
@@ -441,12 +459,77 @@ const make = Effect.gen(function* () {
       path.join(cwd, "assets", "icon.svg"),
       namedProjectIconSvg(name),
     );
+    const files = {
+      "main.tsx": `// A little light, written in TypeScript.
+// Change the resistance, then watch the board update.
+export default () => (
+  <board width="30mm" height="20mm" autorouter="auto-local">
+    <pinheader name="J1" pinCount={2} footprint="pinrow2"
+      pcbX={-10} schX={-5} pinLabels={{ pin1: "VCC", pin2: "GND" }} />
+    <resistor
+      name="R1"
+      resistance="330"
+      footprint="0603"
+      pcbX={-4}
+      schX={-2}
+    />
+    <led
+      name="D1"
+      color="green"
+      footprint="0603"
+      pcbX={4}
+      schX={2}
+    />
+    <trace from="net.VCC" to=".R1 > .pin1" />
+    <trace from=".R1 > .pin2" to=".D1 > .pin1" />
+    <trace from=".D1 > .pin2" to="net.GND" />
+    <trace from=".J1 > .pin1" to="net.VCC" />
+    <trace from=".J1 > .pin2" to="net.GND" />
+  </board>
+)
+`,
+      "tscircuit.config.json": (yield* encodeProjectJson({ mainEntrypoint: "main.tsx" })) + "\n",
+      "package.json":
+        (yield* encodeProjectJson({
+          name: newProjectFolderName(name),
+          private: true,
+          type: "module",
+          scripts: { dev: "tsci dev", build: "tsci build" },
+          devDependencies: { tscircuit: "0.0.3087" },
+        })) + "\n",
+      ".gitignore": "node_modules/\ndist/\n.tscircuit/\n",
+      "t3.json":
+        (yield* encodeProjectJson({
+          scripts: [
+            {
+              name: "Setup",
+              command: "bun install",
+              icon: "configure",
+              runOnWorktreeCreate: true,
+            },
+            { name: "Dev", command: "bun run dev", icon: "play" },
+            { name: "Build", command: "bun run build", icon: "build" },
+          ],
+        })) + "\n",
+    };
+    for (const [relativePath, contents] of Object.entries(files)) {
+      yield* fileSystem.writeFileString(path.join(cwd, relativePath), contents);
+    }
     // Force explicit filenames so global ignore rules cannot drop them, and keep
     // core.safecrlf=true from refusing the LF files under CRLF conversion.
     yield* git.execute({
       operation: "ManagedProjectFolders.add",
       cwd,
-      args: ["-c", "core.safecrlf=false", "add", "--force", "--", "README.md", "assets/icon.svg"],
+      args: [
+        "-c",
+        "core.safecrlf=false",
+        "add",
+        "--force",
+        "--",
+        "README.md",
+        "assets/icon.svg",
+        ...Object.keys(files),
+      ],
       timeoutMs: 10_000,
     });
     return yield* git
